@@ -1,5 +1,9 @@
 <?php
 
+namespace Optimy\PhpTestOptimy\Utils;
+
+use PDO;
+
 class DB
 {
 	private $pdo;
@@ -10,9 +14,9 @@ class DB
 	{
 		$dsn = 'mysql:dbname=phptest;host=127.0.0.1';
 		$user = 'root';
-		$password = 'pass';
+		$password = '';
 
-		$this->pdo = new \PDO($dsn, $user, $password);
+		$this->pdo = new PDO($dsn, $user, $password);
 	}
 
 	public static function getInstance()
