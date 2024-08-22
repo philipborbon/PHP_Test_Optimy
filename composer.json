@@ -1,0 +1,19 @@
+{
+    "name": "optimy/php-test-optimy",
+    "description": "PHP Test Optimy",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Optimy\\PhpTestOptimy\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Philip Borbon",
+            "email": "philipjohnborbon@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "8.2.*"
+    }
+}
