@@ -3,7 +3,7 @@
 use Optimy\PhpTestOptimy\Utils\CommentManager;
 use Optimy\PhpTestOptimy\Utils\NewsManager;
 
-require 'vendor/autoload.php';
+require 'bootstrap.php';
 
 foreach (NewsManager::getInstance()->listNews() as $news) {
     echo("############ NEWS " . $news->getTitle() . " ############\n");

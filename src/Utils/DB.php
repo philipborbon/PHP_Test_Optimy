@@ -12,9 +12,9 @@ class DB
 
 	private function __construct()
 	{
-		$dsn = 'mysql:dbname=phptest;host=127.0.0.1';
-		$user = 'root';
-		$password = '';
+		$dsn = $_ENV['DB_DSN'] ?? null;
+		$user = $_ENV['DB_USER'] ?? null;
+		$password = $_ENV['DB_PASS'] ?? null;
 
 		$this->pdo = new PDO($dsn, $user, $password);
 	}
