@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Optimy\PhpTestOptimy\Utils;
 
+use DateTime;
+use Exception;
 use Optimy\PhpTestOptimy\Models\News;
 
 final class NewsManager
@@ -14,10 +16,11 @@ final class NewsManager
     ){
 	}
 
-	/**
-	* list all news
-	*/
-	public function listNews()
+    /**
+     * @return News[]
+     * @throws Exception
+     */
+	public function listNews(): array
 	{
 		$rows = $this->db->select('SELECT * FROM `news`');
 
@@ -27,27 +30,21 @@ final class NewsManager
 			$news[] = $n->setId($row['id'])
 			  ->setTitle($row['title'])
 			  ->setBody($row['body'])
-			  ->setCreatedAt($row['created_at']);
+			  ->setCreatedAt(new DateTime($row['created_at']));
 		}
 
 		return $news;
 	}
 
-	/**
-	* add a record in news table
-	*/
-	public function addNews($title, $body)
-	{
+	public function addNews(string $title, string $body): ?int
+    {
 		$sql = "INSERT INTO `news` (`title`, `body`, `created_at`) VALUES('". $title . "','" . $body . "','" . date('Y-m-d') . "')";
 		$this->db->exec($sql);
 		return $this->db->lastInsertId();
 	}
 
-	/**
-	* deletes a news, and also linked comments
-	*/
-	public function deleteNews($id)
-	{
+	public function deleteNews(int $id): int
+    {
 		$comments = $this->commentManager->listComments();
 		$idsToDelete = [];
 

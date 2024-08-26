@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Optimy\PhpTestOptimy\Utils;
 
+use DateTime;
+use Exception;
 use Optimy\PhpTestOptimy\Models\Comment;
 
 final class CommentManager
@@ -12,7 +14,11 @@ final class CommentManager
 	{
 	}
 
-	public function listComments()
+    /**
+     * @return Comment[]
+     * @throws Exception
+     */
+	public function listComments(): array
 	{
 		$rows = $this->db->select('SELECT * FROM `comment`');
 
@@ -21,22 +27,22 @@ final class CommentManager
 			$n = new Comment();
 			$comments[] = $n->setId($row['id'])
 			  ->setBody($row['body'])
-			  ->setCreatedAt($row['created_at'])
+			  ->setCreatedAt(new DateTime($row['created_at']))
 			  ->setNewsId($row['news_id']);
 		}
 
 		return $comments;
 	}
 
-	public function addCommentForNews($body, $newsId)
-	{
+	public function addCommentForNews(string $body, int $newsId): ?int
+    {
 		$sql = "INSERT INTO `comment` (`body`, `created_at`, `news_id`) VALUES('". $body . "','" . date('Y-m-d') . "','" . $newsId . "')";
 		$this->db->exec($sql);
 		return $this->db->lastInsertId();
 	}
 
-	public function deleteComment($id)
-	{
+	public function deleteComment(int $id): int
+    {
 		$sql = "DELETE FROM `comment` WHERE `id`=" . $id;
 		return $this->db->exec($sql);
 	}

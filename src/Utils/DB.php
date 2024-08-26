@@ -8,26 +8,38 @@ use PDO;
 
 final class DB
 {
-	private $pdo;
+	private PDO $pdo;
 
-	public function __construct($dsn, $user, $password)
+	public function __construct(string $dsn, string $user, string $password)
 	{
 		$this->pdo = new PDO($dsn, $user, $password);
 	}
 
-	public function select($sql)
+	public function select(string $sql): array
 	{
-		$sth = $this->pdo->query($sql);
-		return $sth->fetchAll();
+		$statement = $this->pdo->query($sql);
+		return $statement->fetchAll();
 	}
 
-	public function exec($sql)
+	public function exec(string $sql): int
 	{
-		return $this->pdo->exec($sql);
+		$affectedRows = $this->pdo->exec($sql);
+
+        if (false === $affectedRows) {
+            return 0;
+        }
+
+        return $affectedRows;
 	}
 
-	public function lastInsertId()
+	public function lastInsertId(): ?int
 	{
-		return $this->pdo->lastInsertId();
+        $lastInsertedId = $this->pdo->lastInsertId();
+
+        if (false === $lastInsertedId) {
+            return null;
+        }
+
+        return (int) $lastInsertedId;
 	}
 }
