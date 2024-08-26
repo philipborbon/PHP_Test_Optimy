@@ -5,45 +5,58 @@ declare(strict_types=1);
 namespace Optimy\PhpTestOptimy\Utils;
 
 use DateTime;
-use Exception;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Exception\ORMException;
 use Optimy\PhpTestOptimy\Models\Comment;
+use Optimy\PhpTestOptimy\Models\News;
 
 final class CommentManager
 {
-	public function __construct(private readonly DB $db)
+    private EntityRepository $newsRepository;
+
+    private EntityRepository $commentRepository;
+
+	public function __construct(private readonly EntityManagerInterface $entityManager)
 	{
+        $this->newsRepository = $this->entityManager->getRepository(News::class);
+        $this->commentRepository = $this->entityManager->getRepository(Comment::class);
 	}
 
     /**
      * @return Comment[]
-     * @throws Exception
      */
 	public function listComments(): array
 	{
-		$rows = $this->db->select('SELECT * FROM `comment`');
-
-		$comments = [];
-		foreach($rows as $row) {
-			$n = new Comment();
-			$comments[] = $n->setId($row['id'])
-			  ->setBody($row['body'])
-			  ->setCreatedAt(new DateTime($row['created_at']))
-			  ->setNewsId($row['news_id']);
-		}
-
-		return $comments;
+        return $this->commentRepository->findAll();
 	}
 
-	public function addCommentForNews(string $body, int $newsId): ?int
+    /**
+     * @throws ORMException
+     */
+    public function addCommentForNews(string $body, int $newsId): Comment
     {
-		$sql = "INSERT INTO `comment` (`body`, `created_at`, `news_id`) VALUES('". $body . "','" . date('Y-m-d') . "','" . $newsId . "')";
-		$this->db->exec($sql);
-		return $this->db->lastInsertId();
+        $news = $this->newsRepository->find($newsId);
+
+        $comment = new Comment();
+        $comment->setBody($body);
+        $comment->setCreatedAt(new DateTime());
+        $comment->setNews($news);
+
+        $this->entityManager->persist($comment);
+        $this->entityManager->flush();
+
+        $this->entityManager->refresh($news);
+
+        return $comment;
 	}
 
-	public function deleteComment(int $id): int
+	public function deleteComment(int $id): void
     {
-		$sql = "DELETE FROM `comment` WHERE `id`=" . $id;
-		return $this->db->exec($sql);
+        /** @var Comment $comment */
+        $comment = $this->commentRepository->find($id);
+
+        $this->entityManager->remove($comment);
+        $this->entityManager->flush();
 	}
 }

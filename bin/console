@@ -1,0 +1,72 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
+use Doctrine\Migrations\Configuration\Migration\PhpFile;
+use Doctrine\Migrations\DependencyFactory;
+use Doctrine\Migrations\Metadata\Storage\TableMetadataStorageConfiguration;
+use Doctrine\Migrations\Tools\Console\Command;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Tools\Console\ConsoleRunner;
+use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
+use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
+use Doctrine\ORM\Tools\ToolEvents;
+use Optimy\PhpTestOptimy\App;
+use Optimy\PhpTestOptimy\Seeders\DatabaseSeeder;
+use Symfony\Component\Console\Application;
+
+/** @var App $app */
+$app = require __DIR__ . '/../bootstrap.php';
+
+/** @var EntityManager $entityManager */
+$entityManager = $app->getContainer()->get(EntityManager::class);
+
+$config = new PhpFile(__DIR__ . '/../config/migrations.php');
+
+$dependencyFactory = DependencyFactory::fromEntityManager($config, new ExistingEntityManager($entityManager));
+
+$entityManager->getEventManager()->addEventListener(ToolEvents::postGenerateSchema, new class($dependencyFactory) {
+    private TableMetadataStorageConfiguration $configuration;
+
+    public function __construct(private readonly DependencyFactory $dependencyFactory) {
+        $configuration = $this->dependencyFactory->getConfiguration()->getMetadataStorageConfiguration();
+        $this->configuration = $configuration;
+    }
+
+    public function postGenerateSchema(GenerateSchemaEventArgs $args): void
+    {
+        $schema = $args->getSchema();
+        $table = $schema->createTable($this->configuration->getTableName());
+        $table->addColumn(
+            $this->configuration->getVersionColumnName(),
+            'string',
+            ['notnull' => true, 'length' => $this->configuration->getVersionColumnLength()],
+        );
+        $table->addColumn($this->configuration->getExecutedAtColumnName(), 'datetime', ['notnull' => false]);
+        $table->addColumn($this->configuration->getExecutionTimeColumnName(), 'integer', ['notnull' => false]);
+        $table->setPrimaryKey([$this->configuration->getVersionColumnName()]);
+    }
+});
+
+$cli = new Application('PHP Test Optimy CLI');
+$cli->setCatchExceptions(true);
+
+$cli->addCommands([
+    new Command\DumpSchemaCommand($dependencyFactory),
+    new Command\ExecuteCommand($dependencyFactory),
+    new Command\GenerateCommand($dependencyFactory),
+    new Command\LatestCommand($dependencyFactory),
+    new Command\ListCommand($dependencyFactory),
+    new Command\MigrateCommand($dependencyFactory),
+    new Command\RollupCommand($dependencyFactory),
+    new Command\StatusCommand($dependencyFactory),
+    new Command\VersionCommand($dependencyFactory),
+    new Command\DiffCommand($dependencyFactory),
+    new DatabaseSeeder($entityManager),
+]);
+
+ConsoleRunner::addCommands($cli, new SingleManagerProvider($entityManager));
+
+$cli->run();

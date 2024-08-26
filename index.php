@@ -18,10 +18,8 @@ $newsManager = $app->getContainer()->get(NewsManager::class);
 foreach ($newsManager->listNews() as $news) {
     echo("############ NEWS " . $news->getTitle() . " ############\n");
     echo($news->getBody() . "\n");
-    foreach ($commentManager->listComments() as $comment) {
-        if ($comment->getNewsId() == $news->getId()) {
-            echo("Comment " . $comment->getId() . " : " . $comment->getBody() . "\n");
-        }
+    foreach ($news->getComments() as $comment) {
+        echo("Comment " . $comment->getId() . " : " . $comment->getBody() . "\n");
     }
 }
 

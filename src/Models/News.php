@@ -5,13 +5,25 @@ declare(strict_types=1);
 namespace Optimy\PhpTestOptimy\Models;
 
 use DateTimeInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
-final class News
+class News
 {
     private int $id;
+
     private string $title;
+
     private string $body;
+
     private DateTimeInterface $createdAt;
+
+    private Collection $comments;
+
+    public function __construct()
+    {
+        $this->comments = new ArrayCollection();
+    }
 
     public function setId(int $id): self
     {
@@ -59,5 +71,26 @@ final class News
     public function getCreatedAt(): DateTimeInterface
     {
         return $this->createdAt;
+    }
+
+    /**
+     * @param Comment[] $comments
+     */
+    public function setComments(array $comments): self
+    {
+        $this->comments->clear();
+        foreach ($comments as $comment) {
+            $this->comments->add($comment);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Comment[]
+     */
+    public function getComments(): array
+    {
+        return $this->comments->toArray();
     }
 }

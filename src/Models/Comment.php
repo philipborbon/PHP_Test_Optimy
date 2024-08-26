@@ -6,12 +6,15 @@ namespace Optimy\PhpTestOptimy\Models;
 
 use DateTimeInterface;
 
-final class Comment
+class Comment
 {
     private int $id;
+
     private string $body;
+
     private DateTimeInterface $createdAt;
-    private int $newsId;
+
+    private News $news;
 
     public function setId(int $id): self
     {
@@ -49,15 +52,15 @@ final class Comment
         return $this->createdAt;
     }
 
-    public function getNewsId(): int
+    public function setNews(News $news): self
     {
-        return $this->newsId;
-    }
-
-    public function setNewsId(int $newsId): self
-    {
-        $this->newsId = $newsId;
+        $this->news = $news;
 
         return $this;
+    }
+
+    public function getNews(): News
+    {
+        return $this->news;
     }
 }
