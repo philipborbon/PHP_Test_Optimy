@@ -1,31 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Optimy\PhpTestOptimy\Utils;
 
 use PDO;
 
-class DB
+final class DB
 {
 	private $pdo;
 
-	private static $instance = null;
-
-	private function __construct()
+	public function __construct($dsn, $user, $password)
 	{
-		$dsn = $_ENV['DB_DSN'] ?? null;
-		$user = $_ENV['DB_USER'] ?? null;
-		$password = $_ENV['DB_PASS'] ?? null;
-
 		$this->pdo = new PDO($dsn, $user, $password);
-	}
-
-	public static function getInstance()
-	{
-		if (null === self::$instance) {
-			$c = __CLASS__;
-			self::$instance = new $c;
-		}
-		return self::$instance;
 	}
 
 	public function select($sql)

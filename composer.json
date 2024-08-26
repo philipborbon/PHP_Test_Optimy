@@ -16,6 +16,7 @@
     "require": {
         "php": "8.2.*",
         "symfony/dotenv": "^7.1",
-        "ext-pdo": "*"
+        "ext-pdo": "*",
+        "symfony/dependency-injection": "^7.1"
     }
 }

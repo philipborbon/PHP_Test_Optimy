@@ -1,30 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Optimy\PhpTestOptimy\Utils;
 
 use Optimy\PhpTestOptimy\Models\Comment;
 
-class CommentManager
+final class CommentManager
 {
-	private static $instance = null;
-
-	private function __construct()
+	public function __construct(private readonly DB $db)
 	{
-	}
-
-	public static function getInstance()
-	{
-		if (null === self::$instance) {
-			$c = __CLASS__;
-			self::$instance = new $c;
-		}
-		return self::$instance;
 	}
 
 	public function listComments()
 	{
-		$db = DB::getInstance();
-		$rows = $db->select('SELECT * FROM `comment`');
+		$rows = $this->db->select('SELECT * FROM `comment`');
 
 		$comments = [];
 		foreach($rows as $row) {
@@ -40,16 +30,14 @@ class CommentManager
 
 	public function addCommentForNews($body, $newsId)
 	{
-		$db = DB::getInstance();
 		$sql = "INSERT INTO `comment` (`body`, `created_at`, `news_id`) VALUES('". $body . "','" . date('Y-m-d') . "','" . $newsId . "')";
-		$db->exec($sql);
-		return $db->lastInsertId($sql);
+		$this->db->exec($sql);
+		return $this->db->lastInsertId();
 	}
 
 	public function deleteComment($id)
 	{
-		$db = DB::getInstance();
 		$sql = "DELETE FROM `comment` WHERE `id`=" . $id;
-		return $db->exec($sql);
+		return $this->db->exec($sql);
 	}
 }

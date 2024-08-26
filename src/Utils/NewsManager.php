@@ -1,24 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Optimy\PhpTestOptimy\Utils;
 
 use Optimy\PhpTestOptimy\Models\News;
 
-class NewsManager
+final class NewsManager
 {
-	private static $instance = null;
-
-	private function __construct()
-	{
-	}
-
-	public static function getInstance()
-	{
-		if (null === self::$instance) {
-			$c = __CLASS__;
-			self::$instance = new $c;
-		}
-		return self::$instance;
+	public function __construct(
+        private readonly DB $db,
+        private readonly CommentManager $commentManager,
+    ){
 	}
 
 	/**
@@ -26,8 +19,7 @@ class NewsManager
 	*/
 	public function listNews()
 	{
-		$db = DB::getInstance();
-		$rows = $db->select('SELECT * FROM `news`');
+		$rows = $this->db->select('SELECT * FROM `news`');
 
 		$news = [];
 		foreach($rows as $row) {
@@ -46,10 +38,9 @@ class NewsManager
 	*/
 	public function addNews($title, $body)
 	{
-		$db = DB::getInstance();
 		$sql = "INSERT INTO `news` (`title`, `body`, `created_at`) VALUES('". $title . "','" . $body . "','" . date('Y-m-d') . "')";
-		$db->exec($sql);
-		return $db->lastInsertId($sql);
+		$this->db->exec($sql);
+		return $this->db->lastInsertId();
 	}
 
 	/**
@@ -57,7 +48,7 @@ class NewsManager
 	*/
 	public function deleteNews($id)
 	{
-		$comments = CommentManager::getInstance()->listComments();
+		$comments = $this->commentManager->listComments();
 		$idsToDelete = [];
 
 		foreach ($comments as $comment) {
@@ -67,11 +58,10 @@ class NewsManager
 		}
 
 		foreach($idsToDelete as $id) {
-			CommentManager::getInstance()->deleteComment($id);
+			$this->commentManager->deleteComment($id);
 		}
 
-		$db = DB::getInstance();
 		$sql = "DELETE FROM `news` WHERE `id`=" . $id;
-		return $db->exec($sql);
+		return $this->db->exec($sql);
 	}
 }
