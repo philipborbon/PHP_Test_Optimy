@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Optimy\PhpTestOptimy\Tests\Integration\Utils;
 
+use Doctrine\ORM\EntityNotFoundException;
 use Optimy\PhpTestOptimy\Models\Comment;
 use Optimy\PhpTestOptimy\Models\News;
 use Optimy\PhpTestOptimy\Tests\Factory\NewsFactory;
@@ -109,5 +110,11 @@ final class NewsManagerTest extends IntegrationTestCase
         foreach ($toBeDeletedCommentIds as $deletedCommentId) {
             $this->assertNotContains($deletedCommentId, $remainingCommentIds);
         }
+    }
+
+    public function testDeleteNewsWithNonExistingId(): void
+    {
+        $this->expectException(EntityNotFoundException::class);
+        $this->newsManager->deleteNews(77);
     }
 }

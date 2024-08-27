@@ -6,6 +6,7 @@ namespace Optimy\PhpTestOptimy\Utils;
 
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Exception\ORMException;
 use Optimy\PhpTestOptimy\Models\Comment;
@@ -36,7 +37,12 @@ final class CommentManager
      */
     public function addCommentForNews(string $body, int $newsId): Comment
     {
+        /** @var ?News $news */
         $news = $this->newsRepository->find($newsId);
+
+        if (null === $news) {
+            throw EntityNotFoundException::fromClassNameAndIdentifier(News::class, [$newsId]);
+        }
 
         $comment = new Comment();
         $comment->setBody($body);
@@ -55,6 +61,10 @@ final class CommentManager
     {
         /** @var Comment $comment */
         $comment = $this->commentRepository->find($id);
+
+        if (null === $comment) {
+            throw EntityNotFoundException::fromClassNameAndIdentifier(Comment::class, [$id]);
+        }
 
         $this->entityManager->remove($comment);
         $this->entityManager->flush();

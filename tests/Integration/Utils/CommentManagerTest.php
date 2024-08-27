@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Optimy\PhpTestOptimy\Tests\Integration\Utils;
 
+use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\Exception\ORMException;
 use Optimy\PhpTestOptimy\Models\Comment;
 use Optimy\PhpTestOptimy\Tests\Factory\NewsFactory;
@@ -68,6 +69,15 @@ final class CommentManagerTest extends IntegrationTestCase
         $this->assertSame(NewsFactory::COMMENT, $comment->getBody());
     }
 
+    /**
+     * @throws ORMException
+     */
+    public function testAddCommentForNewsForNonExistingNewsId(): void
+    {
+        $this->expectException(EntityNotFoundException::class);
+        $this->commentManager->addCommentForNews(NewsFactory::COMMENT, 77);
+    }
+
     public function testDeleteComment(): void
     {
         $commentList = $this->commentManager->listComments();
@@ -91,5 +101,11 @@ final class CommentManagerTest extends IntegrationTestCase
         $commentIds = array_map(fn(Comment $comment) => $comment->getId(), $commentList);
 
         $this->assertNotContains($toBeDeletedCommentId, $commentIds);
+    }
+
+    public function testDeleteWithNonExistingId(): void
+    {
+        $this->expectException(EntityNotFoundException::class);
+        $this->commentManager->deleteComment(77);
     }
 }

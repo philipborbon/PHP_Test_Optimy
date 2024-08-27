@@ -6,6 +6,7 @@ namespace Optimy\PhpTestOptimy\Utils;
 
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\EntityRepository;
 use Optimy\PhpTestOptimy\Models\News;
 
@@ -47,6 +48,10 @@ final class NewsManager
     {
         /** @var News $news */
         $news = $this->repository->find($id);
+
+        if (null === $news) {
+            throw EntityNotFoundException::fromClassNameAndIdentifier(News::class, [$id]);
+        }
 
         $this->entityManager->remove($news);
         $this->entityManager->flush();
