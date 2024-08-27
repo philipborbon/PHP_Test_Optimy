@@ -2,3 +2,7 @@
 .idea
 /vendor/
 .env
+.phpunit.result.cache
+/coverage-report-html/
+/coverage-report-xml/
+/.phpunit.cache/

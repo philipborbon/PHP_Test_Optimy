@@ -15,8 +15,12 @@ use Symfony\Component\DependencyInjection\Reference;
 
 $container = new ContainerBuilder();
 
+$dbDsn = ('test' === ($_ENV['APP_ENV'] ?? null))
+    ? ($_ENV['TEST_DB_DSN'] ?? null)
+    : ($_ENV['DB_DSN'] ?? null);
+
 $dbConnectionParams = (new DsnParser())
-    ->parse($_ENV['DB_DSN'] ?? null);
+    ->parse($dbDsn);
 
 $mappingDriver = new SimplifiedXmlDriver(
     prefixes: [

@@ -8,6 +8,11 @@
             "Optimy\\PhpTestOptimy\\Seeders\\": "seeders/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Optimy\\PhpTestOptimy\\Tests\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "Philip Borbon",
@@ -22,6 +27,10 @@
         "doctrine/orm": "3.2.2",
         "doctrine/migrations": "^3.8",
         "symfony/cache": "^7.1",
-        "doctrine/data-fixtures": "^1.7"
+        "doctrine/data-fixtures": "^1.7",
+        "symfony/process": "^7.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.3"
     }
 }
